@@ -28,3 +28,6 @@ A seção de álbuns é configurável em `site.config.js` (`features.albums` e `
 
 ## Visualização de álbuns (protótipo funcional)
 Os cartões da seção Álbuns agora abrem uma janela com as fotografias configuradas em `albums[].photos`. Cada item aceita `{ imageUrl: "./assets/foto.jpg", alt: "Descrição", caption: "Legenda" }`. Ao tocar numa foto, ela abre ampliada; a tecla Esc fecha as janelas. Álbuns sem imagens exibem aviso de conteúdo ainda não publicado. **Esta funcionalidade é apenas para álbuns públicos:** não utilizar para fotos privadas, links secretos ou imagens sem autorização. A publicação de álbuns privados exigirá backend autenticado e URLs protegidas.
+
+## Editor de álbuns
+No `admin.html`, a seção **Álbuns públicos** permite adicionar/remover álbuns, editar capa, título, descrição e fotos sem escrever JSON. Para cada foto, use uma linha no formato `./assets/foto.jpg | Legenda | Texto alternativo` (ou URL HTTPS). **Visualizar alterações** cria uma prévia temporária; **Baixar configuração do site** gera `site.config.js` para revisão e implantação manual. Nenhuma foto é enviada ao servidor e nenhuma alteração é publicada automaticamente. Não inserir fotos privadas ou não autorizadas.
