@@ -22,3 +22,6 @@ Identidade provisória em **preto, branco e vermelho**, inspirada na marca atual
 
 ## Retrato selecionado
 A configuração aponta para `assets/retrato-thiago.png`, imagem selecionada pelo fotógrafo na conversa. **O arquivo binário ainda não foi enviado ao GitHub**: o site mantém a área reservada até a inclusão da foto. Para uma versão pronta para visualização com a imagem, usar o pacote local fornecido na conversa. A imagem é gerada por IA e requer conferência antes de publicação.
+
+## Álbuns públicos
+A seção de álbuns é configurável em `site.config.js` (`features.albums` e `albums`). Exibe **capas e metadados demonstrativos**, sem links de abertura nem publicação de fotos reais nesta fase. A visualização completa de álbuns e galerias privadas exigirá desenvolvimento adicional, autorização dos titulares e controle de acesso.
