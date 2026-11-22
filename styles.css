@@ -137,3 +137,21 @@ footer{letter-spacing:.08em}
  .hero-rotating-image,.reveal-ready{transition:none!important;transform:none!important}
  .reveal-ready{opacity:1!important}
 }
+
+/* Visualizador de fotografia: ampliação, navegação e inspeção de detalhes */
+.portfolio-clickable{cursor:zoom-in}
+.portfolio-clickable:focus-visible{outline:3px solid #e53935;outline-offset:4px}
+.lightbox-dialog{width:min(1280px,calc(100vw - 24px));max-width:min(1280px,calc(100vw - 24px));padding:16px;background:#080809}
+.photo-viewer{display:grid;grid-template-columns:52px minmax(0,1fr) 52px;align-items:center;gap:8px}
+.viewer-stage{text-align:center;min-width:0}
+.viewer-stage img{display:block;margin:auto;max-width:100%;width:auto;height:auto;max-height:68vh;object-fit:contain;transform-origin:center;transition:transform .2s ease;cursor:zoom-in}
+.viewer-stage{overflow:auto;max-height:77vh}
+.viewer-stage p{font-size:12px;color:#bdbdc1}
+.viewer-arrow{background:#1e1e22;border:1px solid #4a4a50;color:#fff;font-size:35px;min-height:60px;cursor:pointer}
+.viewer-arrow:disabled{opacity:.3;cursor:default}
+.viewer-tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px auto 0}
+.viewer-tools button{background:#242428;color:#fff;border:1px solid #48484f;padding:10px 15px;cursor:pointer}
+.viewer-tools button:disabled{opacity:.35;cursor:default}
+.viewer-tools button:not(:disabled):hover,.viewer-arrow:not(:disabled):hover{border-color:#e53935}
+@media(max-width:600px){.photo-viewer{grid-template-columns:32px minmax(0,1fr) 32px;gap:3px}.viewer-arrow{font-size:25px;min-height:46px}.lightbox-dialog{padding:10px}.viewer-tools button{font-size:12px;padding:9px}}
+@media(prefers-reduced-motion:reduce){.viewer-stage img{transition:none}}
