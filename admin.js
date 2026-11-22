@@ -76,10 +76,29 @@
     const blob=new Blob([contents],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   }
   function act(action){
-    try{const config=collect();action(config);$("status").textContent="Configuração preparada com sucesso.";}catch(error){$("status").textContent="Verifique os dados: "+error.message;}
+    try{const config=collect();action(config);if(!$("status").textContent.startsWith("Rascunho salvo"))$("status").textContent="Configuração preparada com sucesso.";}catch(error){$("status").textContent="Verifique os dados: "+error.message;}
   }
   $("editor").addEventListener("submit",event=>{event.preventDefault();act(config=>download("site.config.js","window.SITE_CONFIG = "+JSON.stringify(config,null,2)+";\n","text/javascript"));});
   $("preview").addEventListener("click",()=>act(config=>{sessionStorage.setItem("studio_preview_config",JSON.stringify(config));window.location.assign("./index.html?preview=1");}));
+  const draftKey="thiago_aquino_site_editor_draft_v1";
+  $("save-draft").addEventListener("click",()=>act(config=>{
+    localStorage.setItem(draftKey,JSON.stringify(config));
+    $("status").textContent="Rascunho salvo apenas neste navegador.";
+  }));
+  $("load-draft").addEventListener("click",()=>{
+    try{
+      const saved=localStorage.getItem(draftKey);
+      if(!saved){$("status").textContent="Nenhum rascunho encontrado.";return;}
+      const parsed=JSON.parse(saved);
+      if(!parsed||!parsed.brand||!parsed.contact||!parsed.hero||!parsed.about||!parsed.features||!Array.isArray(parsed.albums)||!Array.isArray(parsed.services)||!Array.isArray(parsed.portfolio))throw new Error("Formato de rascunho inválido");
+      fill(parsed);$("status").textContent="Rascunho recuperado. Revise antes de exportar.";
+    }catch(error){$("status").textContent="Não foi possível recuperar: "+error.message;}
+  });
+  $("clear-draft").addEventListener("click",()=>{
+    if(confirm("Apagar o rascunho salvo neste navegador?")){
+      localStorage.removeItem(draftKey);$("status").textContent="Rascunho local apagado.";
+    }
+  });
   $("reset").addEventListener("click",()=>{if(confirm("Restaurar os campos para os valores iniciais?")){fill(initial);$("status").textContent="Campos restaurados."; }});
   fill(initial);
 })();
