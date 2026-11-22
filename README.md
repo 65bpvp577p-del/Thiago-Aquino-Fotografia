@@ -25,3 +25,6 @@ A configuração aponta para `assets/retrato-thiago.png`, imagem selecionada pel
 
 ## Álbuns públicos
 A seção de álbuns é configurável em `site.config.js` (`features.albums` e `albums`). Exibe **capas e metadados demonstrativos**, sem links de abertura nem publicação de fotos reais nesta fase. A visualização completa de álbuns e galerias privadas exigirá desenvolvimento adicional, autorização dos titulares e controle de acesso.
+
+## Visualização de álbuns (protótipo funcional)
+Os cartões da seção Álbuns agora abrem uma janela com as fotografias configuradas em `albums[].photos`. Cada item aceita `{ imageUrl: "./assets/foto.jpg", alt: "Descrição", caption: "Legenda" }`. Ao tocar numa foto, ela abre ampliada; a tecla Esc fecha as janelas. Álbuns sem imagens exibem aviso de conteúdo ainda não publicado. **Esta funcionalidade é apenas para álbuns públicos:** não utilizar para fotos privadas, links secretos ou imagens sem autorização. A publicação de álbuns privados exigirá backend autenticado e URLs protegidas.
