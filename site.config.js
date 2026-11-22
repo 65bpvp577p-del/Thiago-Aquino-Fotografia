@@ -1,7 +1,7 @@
 window.SITE_CONFIG = {
   brand: { name: "Thiago Aquino", descriptor: "Fotografia", tagline: "Histórias reais, imagens que permanecem.", logoUrl: "", accent: "#e53935", background: "#0b0b0d", foreground: "#f7f7f7" },
   contact: { whatsapp: "", email: "", instagram: "", city: "São Luís - MA" },
-  hero: { eyebrow: "THIAGO AQUINO • FOTOGRAFIA", title: "O instante passa. A imagem permanece.", description: "Ensaios, eventos e histórias registradas com sensibilidade e atenção aos detalhes.", imageUrl: "" },
+  hero: { eyebrow: "THIAGO AQUINO • FOTOGRAFIA", title: "O instante passa. A imagem permanece.", description: "Ensaios, eventos e histórias registradas com sensibilidade e atenção aos detalhes.", imageUrl: "./assets/retrato-thiago.png" },
   about: { title: "Cada história merece um olhar único.", description: "Sou Thiago Aquino, fotógrafo. Meu trabalho é transformar momentos importantes em memórias que atravessam o tempo." },
   features: { portfolio: true, services: true, quotes: true, booking: true },
   services: [
