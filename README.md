@@ -19,3 +19,6 @@ Este repositório contém apenas HTML, CSS e JavaScript estáticos, sem dependê
 
 ## Direção visual aprovada como referência (novembro de 2026)
 Identidade provisória em **preto, branco e vermelho**, inspirada na marca atual do fotógrafo (ícone de câmera com faixa vermelha e assinatura). A foto da marca sobre tecido **não é usada como logotipo definitivo**, para evitar reproduzir textura e distorções da camisa. Substituir por arquivo original transparente ou vetorial quando disponível. Fotografia autoral e portfólio reais ainda precisam ser fornecidos; os cartões sem imagem são espaços reservados, não trabalhos do fotógrafo.
+
+## Retrato selecionado
+A configuração aponta para `assets/retrato-thiago.png`, imagem selecionada pelo fotógrafo na conversa. **O arquivo binário ainda não foi enviado ao GitHub**: o site mantém a área reservada até a inclusão da foto. Para uma versão pronta para visualização com a imagem, usar o pacote local fornecido na conversa. A imagem é gerada por IA e requer conferência antes de publicação.
