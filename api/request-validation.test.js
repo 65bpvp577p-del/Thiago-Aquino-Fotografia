@@ -1,0 +1,13 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {validateRequest} from "./request-validation.js";
+const now=new Date("2026-11-21T12:00:00Z");
+const valid={client_name:"Ana Silva",client_phone:"(98) 99999-9999",service_id:"ensaios",preferred_date:"2026-12-01",preferred_time:"14:30",consent:true};
+test("aceita pedido válido",()=>assert.equal(validateRequest(valid,now).ok,true));
+test("recusa falta de consentimento",()=>assert.equal(validateRequest({...valid,consent:false},now).ok,false));
+test("recusa serviço inválido",()=>assert.equal(validateRequest({...valid,service_id:"' OR 1=1"},now).ok,false));
+test("recusa data impossível",()=>assert.equal(validateRequest({...valid,preferred_date:"2026-02-30"},now).ok,false));
+test("recusa data passada",()=>assert.equal(validateRequest({...valid,preferred_date:"2025-12-01"},now).ok,false));
+test("recusa horário impossível",()=>assert.equal(validateRequest({...valid,preferred_time:"29:90"},now).ok,false));
+test("recusa texto longo",()=>assert.equal(validateRequest({...valid,details:"x".repeat(2001)},now).ok,false));
+test("recusa payload ausente",()=>assert.equal(validateRequest(null,now).ok,false));
