@@ -64,7 +64,10 @@
   function applyZoom(){largePhoto.style.transform="scale("+viewerScale+")";$("photo-zoom-out").disabled=viewerScale<=1;$("photo-zoom-in").disabled=viewerScale>=3;}
   function showViewerImage(){
     const item=viewerItems[viewerIndex];if(!item)return;
+    largePhoto.classList.remove("developed");
     largePhoto.src=item.imageUrl;largePhoto.alt=item.alt||item.caption||"Fotografia do portfólio";
+    if(motionPreference.matches){largePhoto.classList.add("developed");}
+    else {const reveal=()=>{requestAnimationFrame(()=>requestAnimationFrame(()=>largePhoto.classList.add("developed")));};if(largePhoto.complete&&largePhoto.naturalWidth)reveal();else largePhoto.addEventListener("load",reveal,{once:true});}
     setText("photo-caption",item.caption||"");
     setText("photo-counter",(viewerIndex+1)+" / "+viewerItems.length);
     viewerScale=1;applyZoom();
@@ -75,6 +78,7 @@
     if(!viewerItems.length)return;
     viewerIndex=Math.max(0,Math.min(index,viewerItems.length-1));
     showViewerImage();photoDialog.showModal();
+    if(!motionPreference.matches){photoDialog.classList.remove("darkroom-opening");void photoDialog.offsetWidth;photoDialog.classList.add("darkroom-opening");}
   }
   function stepViewer(direction){if(viewerItems.length<2)return;viewerIndex=(viewerIndex+direction+viewerItems.length)%viewerItems.length;showViewerImage();}
   $("photo-prev").addEventListener("click",()=>stepViewer(-1));
