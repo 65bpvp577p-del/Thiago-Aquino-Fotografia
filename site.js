@@ -62,6 +62,13 @@
   if(cfg.contact.email){const a=el("a","",cfg.contact.email);a.href="mailto:"+cfg.contact.email;links.append(a);}
   if(cfg.contact.whatsapp){const a=el("a","","WhatsApp");a.href="https://wa.me/"+cfg.contact.whatsapp.replace(/\D/g,"");a.rel="noopener noreferrer";a.target="_blank";links.append(a);}
   const form=$("request-form");
+  const hasContactChannel=Boolean((cfg.contact.whatsapp||"").replace(/\D/g,"") || (cfg.contact.email||"").trim());
+  if(!hasContactChannel){
+    const submit=form.querySelector('button[type="submit"]');
+    if(submit){submit.disabled=true;submit.textContent="Atendimento em configuração";}
+    for(const control of form.querySelectorAll("input,select,textarea"))control.disabled=true;
+    setText("form-message","O formulário de orçamento estará disponível assim que o canal de atendimento for configurado. Nenhum dado será coletado por enquanto.");
+  }
   const dateInput=form.querySelector('input[name="date"]');
   if(dateInput){const today=new Date();const localDate=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);dateInput.min=localDate;}
   form.addEventListener("submit",event=>{
