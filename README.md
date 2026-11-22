@@ -31,3 +31,6 @@ Os cartões da seção Álbuns agora abrem uma janela com as fotografias configu
 
 ## Editor de álbuns
 No `admin.html`, a seção **Álbuns públicos** permite adicionar/remover álbuns, editar capa, título, descrição e fotos sem escrever JSON. Para cada foto, use uma linha no formato `./assets/foto.jpg | Legenda | Texto alternativo` (ou URL HTTPS). **Visualizar alterações** cria uma prévia temporária; **Baixar configuração do site** gera `site.config.js` para revisão e implantação manual. Nenhuma foto é enviada ao servidor e nenhuma alteração é publicada automaticamente. Não inserir fotos privadas ou não autorizadas.
+
+## Rascunhos locais do editor
+O editor permite **Salvar rascunho neste navegador**, **Recuperar rascunho** e **Apagar rascunho** usando armazenamento local. O salvamento é manual e permanece somente no dispositivo/navegador atual. Não há sincronização, autenticação, backup nem publicação. Evite o recurso em dispositivos compartilhados; não armazene dados pessoais de clientes no editor.
