@@ -1,0 +1,1 @@
+{"name":"studio-request-validation","private":true,"type":"module","scripts":{"test":"node --test"}}
