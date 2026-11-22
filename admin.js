@@ -39,7 +39,7 @@
     try{const config=collect();action(config);$("status").textContent="Configuração preparada com sucesso.";}catch(error){$("status").textContent="Verifique os dados: "+error.message;}
   }
   $("editor").addEventListener("submit",event=>{event.preventDefault();act(config=>download("site.config.js","window.SITE_CONFIG = "+JSON.stringify(config,null,2)+";\n","text/javascript"));});
-  $("preview").addEventListener("click",()=>act(config=>{sessionStorage.setItem("studio_preview_config",JSON.stringify(config));window.open("./index.html?preview=1","_blank","noopener,noreferrer");}));
+  $("preview").addEventListener("click",()=>act(config=>{sessionStorage.setItem("studio_preview_config",JSON.stringify(config));window.location.assign("./index.html?preview=1");}));
   $("reset").addEventListener("click",()=>{if(confirm("Restaurar os campos para os valores iniciais?")){fill(initial);$("status").textContent="Campos restaurados."; }});
   fill(initial);
 })();
