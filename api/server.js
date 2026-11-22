@@ -5,6 +5,8 @@ const PORT=Number(process.env.PORT||8787);
 const SUPABASE_URL=(process.env.STUDIO_SUPABASE_URL||"").replace(/\/$/,"");
 const SERVICE_KEY=process.env.STUDIO_SUPABASE_SERVICE_KEY||"";
 const ALLOWED_ORIGIN=process.env.STUDIO_ALLOWED_ORIGIN||"";
+const ADMIN_USER_ID=process.env.STUDIO_ADMIN_USER_ID||"";
+const ANON_KEY=process.env.STUDIO_SUPABASE_ANON_KEY||"";
 const MAX_BYTES=12000;
 const buckets=new Map();
 function send(res,status,body,headers={}) {
@@ -24,11 +26,28 @@ async function readJson(req){
   try{return JSON.parse(Buffer.concat(chunks).toString("utf8"));}
   catch{throw Object.assign(new Error("JSON inválido"),{status:400});}
 }
-export function createApp({supabaseUrl=SUPABASE_URL,serviceKey=SERVICE_KEY,allowedOrigin=ALLOWED_ORIGIN,fetchImpl=fetch}={}){
+export function createApp({supabaseUrl=SUPABASE_URL,serviceKey=SERVICE_KEY,allowedOrigin=ALLOWED_ORIGIN,adminUserId=ADMIN_USER_ID,anonKey=ANON_KEY,fetchImpl=fetch}={}){
   return createServer(async(req,res)=>{
     const origin=req.headers.origin;
     const cors=origin&&origin===allowedOrigin?{"access-control-allow-origin":origin,"vary":"Origin"}:{};
     if(req.url==="/health"&&req.method==="GET")return send(res,200,{ok:true},cors);
+    if(req.url==="/api/admin/requests"&&req.method==="GET"){
+      if(!allowedOrigin||origin!==allowedOrigin)return send(res,403,{error:"Origem não autorizada"});
+      if(!supabaseUrl||!serviceKey||!adminUserId||!anonKey)return send(res,503,{error:"Painel não configurado"},cors);
+      const token=(req.headers.authorization||"").match(/^Bearer ([A-Za-z0-9._~-]+)$/)?.[1];
+      if(!token)return send(res,401,{error:"Autenticação necessária"},cors);
+      try{
+        const identity=await fetchImpl(supabaseUrl+"/auth/v1/user",{headers:{"apikey":anonKey,"authorization":"Bearer "+token},signal:AbortSignal.timeout(10000)});
+        if(!identity.ok)return send(res,401,{error:"Sessão inválida"},cors);
+        const user=await identity.json();
+        if(user.id!==adminUserId)return send(res,403,{error:"Acesso não autorizado"},cors);
+        const result=await fetchImpl(supabaseUrl+"/rest/v1/studio_requests?select=id,created_at,client_name,client_phone,service_id,preferred_date,preferred_time,location,details,status&order=created_at.desc&limit=100",{
+          headers:{"apikey":serviceKey,"authorization":"Bearer "+serviceKey},signal:AbortSignal.timeout(10000)
+        });
+        if(!result.ok)return send(res,503,{error:"Não foi possível carregar os pedidos"},cors);
+        return send(res,200,{requests:await result.json()},cors);
+      }catch(error){console.error("Falha na leitura administrativa",error.name||"Error");return send(res,503,{error:"Painel temporariamente indisponível"},cors);}
+    }
     if(req.url!=="/api/requests")return send(res,404,{error:"Não encontrado"},cors);
     if(!allowedOrigin||!origin||origin!==allowedOrigin)return send(res,403,{error:"Origem não autorizada"});
     if(req.method==="OPTIONS"){
