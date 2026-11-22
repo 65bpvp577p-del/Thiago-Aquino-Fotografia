@@ -18,7 +18,29 @@
   for(const [key,enabled] of Object.entries(cfg.features)){ if(!enabled) document.querySelectorAll('[data-feature="'+key+'"],[data-section="'+key+'"]').forEach(node=>node.hidden=true); }
   const grid=$("portfolio-grid");
   cfg.portfolio.forEach((item,index)=>{const card=el("article","portfolio-card"); if(item.imageUrl)card.style.backgroundImage="url("+JSON.stringify(item.imageUrl)+")";const inner=el("div");inner.append(el("small","",item.category),el("h3","",item.title));card.append(inner);if(!item.imageUrl)card.style.backgroundColor=["#b6aa9b","#9b968c","#a79b90"][index%3];grid.append(card);});
-  const albumsGrid=$("albums-grid");
+  const albumsGrid=$("albums-grid"),albumDialog=$("album-dialog"),photoDialog=$("photo-dialog");
+  $("album-close").addEventListener("click",()=>albumDialog.close());
+  $("photo-close").addEventListener("click",()=>photoDialog.close());
+  for(const dialog of [albumDialog,photoDialog])dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
+  function openAlbum(album){
+    setText("album-dialog-title",album.title||"Álbum");
+    setText("album-dialog-description",album.subtitle||"");
+    const photos=$("album-photos");photos.replaceChildren();
+    const items=Array.isArray(album.photos)?album.photos.filter(photo=>photo&&typeof photo.imageUrl==="string"&&photo.imageUrl.trim()):[];
+    if(!items.length){photos.append(el("p","gallery-empty","As fotografias deste álbum ainda não foram publicadas."));}
+    items.forEach((photo,index)=>{
+      const button=el("button","gallery-photo");button.type="button";
+      const img=el("img");img.src=photo.imageUrl;img.alt=photo.alt||("Fotografia "+(index+1)+" de "+album.title);img.loading="lazy";
+      const caption=el("span","",photo.caption||"Visualizar fotografia");
+      button.append(img,caption);
+      button.addEventListener("click",()=>{
+        const large=$("photo-large");large.src=photo.imageUrl;large.alt=img.alt;
+        setText("photo-caption",photo.caption||"");photoDialog.showModal();
+      });
+      photos.append(button);
+    });
+    albumDialog.showModal();
+  }
   (cfg.albums||[]).forEach((album,index)=>{
     const card=el("article","album-card");
     const cover=el("div","album-cover");
@@ -29,6 +51,7 @@
     const count=Array.isArray(album.photos)?album.photos.length:0;
     body.append(el("p","",count?count+" fotografias":"Fotos em preparação"));
     card.append(cover,body);
+    const button=el("button","album-open","Explorar álbum");button.type="button";button.addEventListener("click",()=>openAlbum(album));body.append(button);
     albumsGrid.append(card);
   });
   if(!(cfg.albums||[]).length)albumsGrid.append(el("p","","Nenhum álbum publicado."));
