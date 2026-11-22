@@ -31,3 +31,14 @@ footer{background:#080809;border-top:1px solid #303034;color:#b8b8bc}
 [hidden]{display:none!important}
 @media(max-width:800px){.hero{min-height:unset}.hero-photo{border-left:0;min-height:340px}.portfolio-grid{grid-template-columns:1fr 1fr}.portfolio-card{min-height:300px}}
 @media(max-width:520px){.portfolio-grid{grid-template-columns:1fr}.portfolio-card{min-height:380px}.hero h1{font-size:clamp(39px,11vw,60px)}}
+
+/* Álbuns públicos: capas e títulos configuráveis, sem publicar dados de clientes. */
+.albums-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.album-card{background:#17171a;border:1px solid #333337;overflow:hidden}
+.album-cover{aspect-ratio:4/3;background:linear-gradient(135deg,#2c2c30,#101012) center/cover;display:grid;place-items:center}
+.album-empty{font-size:11px;letter-spacing:.22em;color:#88888f}
+.album-body{padding:22px}.album-body small{color:#ff7773;text-transform:uppercase;letter-spacing:.15em}
+.album-body h3{font:30px Georgia,serif;margin:12px 0}
+.album-body p,.album-note{color:#a7a7ad;font-size:13px}
+@media(max-width:800px){.albums-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.albums-grid{grid-template-columns:1fr}}
