@@ -25,10 +25,13 @@
   if(cfg.contact.email){const a=el("a","",cfg.contact.email);a.href="mailto:"+cfg.contact.email;links.append(a);}
   if(cfg.contact.whatsapp){const a=el("a","","WhatsApp");a.href="https://wa.me/"+cfg.contact.whatsapp.replace(/\D/g,"");a.rel="noopener noreferrer";a.target="_blank";links.append(a);}
   const form=$("request-form");
+  const dateInput=form.querySelector('input[name="date"]');
+  if(dateInput){const today=new Date();const localDate=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);dateInput.min=localDate;}
   form.addEventListener("submit",event=>{
     event.preventDefault();
     if(!form.reportValidity())return;
     const data=Object.fromEntries(new FormData(form).entries());
+    if(!cfg.features.booking){data.date="";data.time="";}
     const message=["Olá! Gostaria de solicitar um orçamento/agendamento.", "Nome: "+data.name,"Contato: "+data.phone,"Serviço: "+data.service,"Data: "+(data.date||"A definir"),"Horário preferido: "+(data.time||"A definir"),"Local: "+(data.location||"A definir"),"Detalhes: "+(data.details||"Não informado")].join("\n");
     const phone=(cfg.contact.whatsapp||"").replace(/\D/g,"");
     if(phone){window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");setText("form-message","Confira o WhatsApp e envie a mensagem para concluir a solicitação.");}
