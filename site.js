@@ -16,7 +16,7 @@
   setText("contact-city",cfg.contact.city); setText("footer-brand",cfg.brand.name+" "+cfg.brand.descriptor);
   for(const [key,enabled] of Object.entries(cfg.features)){ if(!enabled) document.querySelectorAll('[data-feature="'+key+'"],[data-section="'+key+'"]').forEach(node=>node.hidden=true); }
   const grid=$("portfolio-grid");
-  cfg.portfolio.forEach((item,index)=>{const card=el("article","portfolio-card"); if(item.imageUrl)card.style.backgroundImage="url("+JSON.stringify(item.imageUrl)+")";const inner=el("div");inner.append(el("small","",item.category),el("h3","",item.title));card.append(inner);if(!item.imageUrl)card.style.backgroundColor=["#b6aa9b","#9b968c","#a79b90"][index%3];grid.append(card);});
+  cfg.portfolio.forEach((item,index)=>{const card=el("article","portfolio-card"); if(item.imageUrl)card.style.backgroundImage="url("+JSON.stringify(item.imageUrl)+")";const inner=el("div");inner.append(el("small","",item.category),el("h3","",item.title));card.append(inner);if(!item.imageUrl)card.style.backgroundColor=["#242428","#202024","#27272a"][index%3];if(item.imageUrl){card.classList.add("portfolio-clickable");card.tabIndex=0;card.setAttribute("role","button");card.setAttribute("aria-label","Ampliar fotografia: "+item.title);card.addEventListener("click",()=>openViewer(cfg.portfolio.filter(p=>p.imageUrl).map(p=>({imageUrl:p.imageUrl,alt:p.title,caption:p.title})),cfg.portfolio.filter(p=>p.imageUrl).indexOf(item)));card.addEventListener("keydown",event=>{if(event.key==="Enter"||event.key===" "){event.preventDefault();card.click();}});}grid.append(card);});
   // Rotação editorial: somente imagens reais configuradas, nunca placeholders.
   const motionPreference=window.matchMedia("(prefers-reduced-motion: reduce)");
   const candidateImages=[...(cfg.portfolio||[]).map(item=>item.imageUrl),...(cfg.albums||[]).flatMap(album=>[album.imageUrl,...(Array.isArray(album.photos)?album.photos.map(photo=>photo.imageUrl):[])])].filter(url=>typeof url==="string"&&url.trim());
@@ -59,6 +59,38 @@
     });
   }
   const albumsGrid=$("albums-grid"),albumDialog=$("album-dialog"),photoDialog=$("photo-dialog");
+  let viewerItems=[],viewerIndex=0,viewerScale=1;
+  const largePhoto=$("photo-large");
+  function applyZoom(){largePhoto.style.transform="scale("+viewerScale+")";$("photo-zoom-out").disabled=viewerScale<=1;$("photo-zoom-in").disabled=viewerScale>=3;}
+  function showViewerImage(){
+    const item=viewerItems[viewerIndex];if(!item)return;
+    largePhoto.src=item.imageUrl;largePhoto.alt=item.alt||item.caption||"Fotografia do portfólio";
+    setText("photo-caption",item.caption||"");
+    setText("photo-counter",(viewerIndex+1)+" / "+viewerItems.length);
+    viewerScale=1;applyZoom();
+    $("photo-prev").disabled=viewerItems.length<2;$("photo-next").disabled=viewerItems.length<2;
+  }
+  function openViewer(items,index=0){
+    viewerItems=items.filter(item=>item&&item.imageUrl);
+    if(!viewerItems.length)return;
+    viewerIndex=Math.max(0,Math.min(index,viewerItems.length-1));
+    showViewerImage();photoDialog.showModal();
+  }
+  function stepViewer(direction){if(viewerItems.length<2)return;viewerIndex=(viewerIndex+direction+viewerItems.length)%viewerItems.length;showViewerImage();}
+  $("photo-prev").addEventListener("click",()=>stepViewer(-1));
+  $("photo-next").addEventListener("click",()=>stepViewer(1));
+  $("photo-zoom-in").addEventListener("click",()=>{viewerScale=Math.min(3,Math.round((viewerScale+.25)*100)/100);applyZoom();});
+  $("photo-zoom-out").addEventListener("click",()=>{viewerScale=Math.max(1,Math.round((viewerScale-.25)*100)/100);applyZoom();});
+  $("photo-zoom-reset").addEventListener("click",()=>{viewerScale=1;applyZoom();});
+  photoDialog.addEventListener("keydown",event=>{
+    if(event.key==="ArrowRight"){event.preventDefault();stepViewer(1);}
+    if(event.key==="ArrowLeft"){event.preventDefault();stepViewer(-1);}
+    if(event.key==="+"||event.key==="="){event.preventDefault();$("photo-zoom-in").click();}
+    if(event.key==="-"){event.preventDefault();$("photo-zoom-out").click();}
+  });
+  let touchX=null;
+  largePhoto.addEventListener("touchstart",event=>{touchX=event.touches[0]?.clientX??null;},{passive:true});
+  largePhoto.addEventListener("touchend",event=>{if(touchX===null||viewerScale>1)return;const delta=(event.changedTouches[0]?.clientX??touchX)-touchX;if(Math.abs(delta)>65)stepViewer(delta<0?1:-1);touchX=null;},{passive:true});
   $("album-close").addEventListener("click",()=>albumDialog.close());
   $("photo-close").addEventListener("click",()=>photoDialog.close());
   for(const dialog of [albumDialog,photoDialog])dialog.addEventListener("click",event=>{if(event.target===dialog)dialog.close();});
@@ -73,10 +105,7 @@
       const img=el("img");img.src=photo.imageUrl;img.alt=photo.alt||("Fotografia "+(index+1)+" de "+album.title);img.loading="lazy";
       const caption=el("span","",photo.caption||"Visualizar fotografia");
       button.append(img,caption);
-      button.addEventListener("click",()=>{
-        const large=$("photo-large");large.src=photo.imageUrl;large.alt=img.alt;
-        setText("photo-caption",photo.caption||"");photoDialog.showModal();
-      });
+      button.addEventListener("click",()=>openViewer(items.map((item,i)=>({...item,alt:item.alt||("Fotografia "+(i+1)+" de "+album.title)})),index));
       photos.append(button);
     });
     albumDialog.showModal();
