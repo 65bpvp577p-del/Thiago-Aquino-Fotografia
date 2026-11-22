@@ -1,0 +1,38 @@
+(() => {
+  "use strict";
+  let cfg = window.SITE_CONFIG;
+  if(new URLSearchParams(location.search).get("preview")==="1"){try{const preview=sessionStorage.getItem("studio_preview_config");if(preview)cfg=JSON.parse(preview);}catch(error){console.warn("Prévia indisponível",error);}}
+  if (!cfg) throw new Error("site.config.js não carregado");
+  const $ = id => document.getElementById(id);
+  const setText = (id, value) => { const el=$(id); if(el) el.textContent=value || ""; };
+  const el = (tag, className, text) => { const node=document.createElement(tag); if(className) node.className=className; if(text) node.textContent=text; return node; };
+  document.documentElement.style.setProperty("--accent", cfg.brand.accent);
+  document.documentElement.style.setProperty("--bg", cfg.brand.background);
+  document.documentElement.style.setProperty("--fg", cfg.brand.foreground);
+  document.title = cfg.brand.name + " " + cfg.brand.descriptor;
+  setText("brand-name",cfg.brand.name); setText("brand-descriptor",cfg.brand.descriptor);
+  setText("hero-eyebrow",cfg.hero.eyebrow); setText("hero-title",cfg.hero.title); setText("hero-description",cfg.hero.description);
+  setText("about-title",cfg.about.title); setText("about-description",cfg.about.description);
+  setText("contact-city",cfg.contact.city); setText("footer-brand",cfg.brand.name+" "+cfg.brand.descriptor);
+  if(cfg.hero.imageUrl){ $("hero-photo").style.backgroundImage="url("+JSON.stringify(cfg.hero.imageUrl)+")"; $("hero-photo").replaceChildren(); }
+  for(const [key,enabled] of Object.entries(cfg.features)){ if(!enabled) document.querySelectorAll('[data-feature="'+key+'"],[data-section="'+key+'"]').forEach(node=>node.hidden=true); }
+  const grid=$("portfolio-grid");
+  cfg.portfolio.forEach((item,index)=>{const card=el("article","portfolio-card"); if(item.imageUrl)card.style.backgroundImage="url("+JSON.stringify(item.imageUrl)+")";const inner=el("div");inner.append(el("small","",item.category),el("h3","",item.title));card.append(inner);if(!item.imageUrl)card.style.backgroundColor=["#b6aa9b","#9b968c","#a79b90"][index%3];grid.append(card);});
+  const services=$("services-grid"),select=$("service-select"); select.append(new Option("Selecione um serviço",""));
+  cfg.services.forEach(item=>{const card=el("article","service-card");card.append(el("h3","",item.title),el("p","",item.description));services.append(card);select.append(new Option(item.title,item.title));});
+  const links=$("contact-links");
+  if(cfg.contact.instagram){const a=el("a","","Instagram");a.href=cfg.contact.instagram;a.rel="noopener noreferrer";a.target="_blank";links.append(a);}
+  if(cfg.contact.email){const a=el("a","",cfg.contact.email);a.href="mailto:"+cfg.contact.email;links.append(a);}
+  if(cfg.contact.whatsapp){const a=el("a","","WhatsApp");a.href="https://wa.me/"+cfg.contact.whatsapp.replace(/\D/g,"");a.rel="noopener noreferrer";a.target="_blank";links.append(a);}
+  const form=$("request-form");
+  form.addEventListener("submit",event=>{
+    event.preventDefault();
+    if(!form.reportValidity())return;
+    const data=Object.fromEntries(new FormData(form).entries());
+    const message=["Olá! Gostaria de solicitar um orçamento/agendamento.", "Nome: "+data.name,"Contato: "+data.phone,"Serviço: "+data.service,"Data: "+(data.date||"A definir"),"Horário preferido: "+(data.time||"A definir"),"Local: "+(data.location||"A definir"),"Detalhes: "+(data.details||"Não informado")].join("\n");
+    const phone=(cfg.contact.whatsapp||"").replace(/\D/g,"");
+    if(phone){window.open("https://wa.me/"+phone+"?text="+encodeURIComponent(message),"_blank","noopener,noreferrer");setText("form-message","Confira o WhatsApp e envie a mensagem para concluir a solicitação.");}
+    else if(cfg.contact.email){window.location.href="mailto:"+cfg.contact.email+"?subject="+encodeURIComponent("Solicitação de orçamento")+"&body="+encodeURIComponent(message);setText("form-message","Confira seu aplicativo de e-mail e envie a mensagem.");}
+    else setText("form-message","Canal de atendimento ainda não configurado. Sua solicitação não foi enviada.");
+  });
+})();
