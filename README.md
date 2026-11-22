@@ -11,8 +11,8 @@ Edite somente `site.config.js` para trocar nome, cores, textos, serviços, portf
 ## Formulário
 O formulário **não salva solicitações em banco de dados**. Ele prepara uma mensagem de WhatsApp ou e-mail para o visitante enviar. Não há reserva automática, confirmação nem controle de disponibilidade. Configure `contact.whatsapp` (DDI+DDD+número) ou `contact.email` antes de usar. Sem canal configurado, o envio é bloqueado com aviso.
 
-## Próxima fase
-Migrar o template para repositório separado, integrar painel, armazenamento de fotos, solicitações, agenda, autenticação, validação server-side, antispam, privacidade/LGPD e testes. Não reutilizar credenciais nem dados de produção da ZylPapers.
+## Limites atuais e próximos passos
+O projeto já está em repositório independente. O editor de álbuns é local, sem autenticação, upload ou persistência no servidor. Para produção faltam hospedagem, armazenamento de fotos, autenticação, autorização por álbum, proteção LGPD, validação server-side e testes de ponta a ponta. Não reutilizar credenciais nem dados da ZylPapers.
 \n## Editor de configuração (admin.html)\nAbra `admin.html` pelo mesmo servidor local. O botão **Visualizar alterações** abre a página inicial com uma configuração temporária desta sessão; não altera o site publicado. O botão **Baixar configuração** exporta `site.config.js`: substitua o arquivo de configuração **na cópia independente**, depois de revisar os dados. Este editor não autentica usuários e não deve ser exposto como painel de produção.\n
 ## Estado funcional e isolamento
 Este repositório contém apenas HTML, CSS e JavaScript estáticos, sem dependências de execução do projeto ZylPapers, sem chaves de API e sem conexão com seu banco de dados. `features.booking` controla os campos de data e horário; `features.quotes` controla a seção de solicitação. **Agendamentos são apenas pedidos de contato, não reservas confirmadas.** Para produção, implementar autenticação e persistência próprias, validação de disponibilidade no servidor e proteção de dados pessoais.
@@ -24,7 +24,7 @@ Identidade provisória em **preto, branco e vermelho**, inspirada na marca atual
 A configuração aponta para `assets/retrato-thiago.png`, imagem selecionada pelo fotógrafo na conversa. **O arquivo binário ainda não foi enviado ao GitHub**: o site mantém a área reservada até a inclusão da foto. Para uma versão pronta para visualização com a imagem, usar o pacote local fornecido na conversa. A imagem é gerada por IA e requer conferência antes de publicação.
 
 ## Álbuns públicos
-A seção de álbuns é configurável em `site.config.js` (`features.albums` e `albums`). Exibe **capas e metadados demonstrativos**, sem links de abertura nem publicação de fotos reais nesta fase. A visualização completa de álbuns e galerias privadas exigirá desenvolvimento adicional, autorização dos titulares e controle de acesso.
+A seção de álbuns é configurável em `site.config.js` (`features.albums` e `albums`). Exibe **capas e metadados demonstrativos** e permite abrir galerias públicas configuradas. A visualização privada exigirá desenvolvimento adicional, autorização dos titulares e controle de acesso.
 
 ## Visualização de álbuns (protótipo funcional)
 Os cartões da seção Álbuns agora abrem uma janela com as fotografias configuradas em `albums[].photos`. Cada item aceita `{ imageUrl: "./assets/foto.jpg", alt: "Descrição", caption: "Legenda" }`. Ao tocar numa foto, ela abre ampliada; a tecla Esc fecha as janelas. Álbuns sem imagens exibem aviso de conteúdo ainda não publicado. **Esta funcionalidade é apenas para álbuns públicos:** não utilizar para fotos privadas, links secretos ou imagens sem autorização. A publicação de álbuns privados exigirá backend autenticado e URLs protegidas.
@@ -34,3 +34,9 @@ No `admin.html`, a seção **Álbuns públicos** permite adicionar/remover álbu
 
 ## Rascunhos locais do editor
 O editor permite **Salvar rascunho neste navegador**, **Recuperar rascunho** e **Apagar rascunho** usando armazenamento local. O salvamento é manual e permanece somente no dispositivo/navegador atual. Não há sincronização, autenticação, backup nem publicação. Evite o recurso em dispositivos compartilhados; não armazene dados pessoais de clientes no editor.
+
+## Verificações automatizadas
+Execute `node tests/site-check.cjs` para verificar sintaxe JavaScript, configuração e presença dos elementos HTML necessários. O GitHub Actions executa esse teste a cada push e pull request. **São verificações estáticas**, não substituem testes no navegador, acessibilidade, segurança nem publicação.
+
+## Estado de entrega
+Protótipo estático editável em GitHub, **não implantado em hospedagem**. A fotografia de apresentação aprovada ainda precisa ser adicionada ao caminho `assets/retrato-thiago.png`. Não há login seguro, upload ou galeria privada de clientes; não utilizar o editor local como painel de produção.
