@@ -120,3 +120,20 @@ footer{letter-spacing:.08em}
 @media(max-width:800px){.header{min-height:70px;gap:12px}.header nav{order:3;justify-content:flex-start;gap:22px;scrollbar-width:none;padding:8px 0}.hero{grid-template-columns:1fr}.hero-copy{padding:80px 7% 50px}.hero h1{font-size:clamp(52px,10vw,80px)}.hero-photo{min-height:520px}.hero-index{padding-top:55px}.portfolio-grid{grid-template-columns:1fr 1fr}.portfolio-card{min-height:440px}.portfolio-card:nth-child(2),.portfolio-card:nth-child(3){margin-top:0}.portfolio-card:first-child{grid-row:span 2;min-height:100%}.section h2{font-size:clamp(43px,8vw,72px)}}
 @media(max-width:520px){.header{padding:15px 6%}.hero-copy{padding:70px 7% 40px}.hero h1{font-size:clamp(49px,12vw,66px)}.hero-photo{min-height:460px}.hero-index{font-size:8px}.actions{gap:20px}.section{padding:75px 7%}.portfolio-grid{grid-template-columns:1fr}.portfolio-card,.portfolio-card:first-child{min-height:480px;grid-row:auto}.albums-grid{grid-template-columns:1fr}.section h2{font-size:clamp(42px,10vw,62px)}.contact{padding-block:90px}footer{gap:12px;flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Movimento editorial: fade entre fotografias reais, sem distorção */
+.hero-photo{isolation:isolate}
+.hero-rotating-image{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1.035);transition:opacity 1.05s ease,transform 7s ease;z-index:0}
+.hero-rotating-image.is-visible{opacity:1;transform:scale(1)}
+.hero-photo:after{z-index:1}
+.hero-photo .photo-placeholder{position:relative;z-index:2}
+.reveal-ready{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+.reveal-ready.is-in-view{opacity:1;transform:translateY(0)}
+.portfolio-card:nth-child(2),.album-card:nth-child(2){transition-delay:.08s}
+.portfolio-card:nth-child(3),.album-card:nth-child(3){transition-delay:.16s}
+.portfolio-card{background-size:cover;transition:opacity .8s ease,transform .8s ease,filter .4s ease}
+.portfolio-card.is-in-view:hover{transform:scale(1.015)}
+@media(prefers-reduced-motion:reduce){
+ .hero-rotating-image,.reveal-ready{transition:none!important;transform:none!important}
+ .reveal-ready{opacity:1!important}
+}
