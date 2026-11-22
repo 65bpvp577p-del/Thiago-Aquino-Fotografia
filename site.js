@@ -14,10 +14,50 @@
   setText("hero-eyebrow",cfg.hero.eyebrow); setText("hero-title",cfg.hero.title); setText("hero-description",cfg.hero.description);
   setText("about-title",cfg.about.title); setText("about-description",cfg.about.description);
   setText("contact-city",cfg.contact.city); setText("footer-brand",cfg.brand.name+" "+cfg.brand.descriptor);
-  if(cfg.hero.imageUrl){const photo=$("hero-photo");const url=cfg.hero.imageUrl;const test=new Image();test.onload=()=>{photo.style.backgroundImage="url("+JSON.stringify(url)+")";photo.replaceChildren();};test.onerror=()=>console.warn("Retrato ainda não disponível no repositório.");test.src=url;}
   for(const [key,enabled] of Object.entries(cfg.features)){ if(!enabled) document.querySelectorAll('[data-feature="'+key+'"],[data-section="'+key+'"]').forEach(node=>node.hidden=true); }
   const grid=$("portfolio-grid");
   cfg.portfolio.forEach((item,index)=>{const card=el("article","portfolio-card"); if(item.imageUrl)card.style.backgroundImage="url("+JSON.stringify(item.imageUrl)+")";const inner=el("div");inner.append(el("small","",item.category),el("h3","",item.title));card.append(inner);if(!item.imageUrl)card.style.backgroundColor=["#b6aa9b","#9b968c","#a79b90"][index%3];grid.append(card);});
+  // Rotação editorial: somente imagens reais configuradas, nunca placeholders.
+  const motionPreference=window.matchMedia("(prefers-reduced-motion: reduce)");
+  const candidateImages=[...(cfg.portfolio||[]).map(item=>item.imageUrl),...(cfg.albums||[]).flatMap(album=>[album.imageUrl,...(Array.isArray(album.photos)?album.photos.map(photo=>photo.imageUrl):[])])].filter(url=>typeof url==="string"&&url.trim());
+  const uniqueImages=[...new Set(candidateImages)];
+  const heroPhoto=$("hero-photo");
+  let rotationTimer=null,heroIndex=0;
+  function changeHero(url){
+    const probe=new Image();
+    probe.onload=()=>{
+      const next=el("div","hero-rotating-image");
+      next.style.backgroundImage="url("+JSON.stringify(url)+")";
+      heroPhoto.append(next);
+      requestAnimationFrame(()=>next.classList.add("is-visible"));
+      const previous=heroPhoto.querySelectorAll(".hero-rotating-image");
+      if(previous.length>1){const old=previous[0];old.classList.remove("is-visible");setTimeout(()=>old.remove(),1100);}
+      const placeholder=heroPhoto.querySelector(".photo-placeholder");
+      if(placeholder)placeholder.hidden=true;
+    };
+    probe.onerror=()=>console.warn("Imagem de destaque indisponível:",url);
+    probe.src=url;
+  }
+  if(uniqueImages.length){
+    const first=cfg.hero.imageUrl&&uniqueImages.includes(cfg.hero.imageUrl)?uniqueImages.indexOf(cfg.hero.imageUrl):0;
+    heroIndex=first;changeHero(uniqueImages[heroIndex]);
+    if(uniqueImages.length>1&&!motionPreference.matches){
+      const startRotation=()=>{if(rotationTimer===null)rotationTimer=setInterval(()=>{if(document.hidden)return;heroIndex=(heroIndex+1)%uniqueImages.length;changeHero(uniqueImages[heroIndex]);},6500);};
+      const stopRotation=()=>{if(rotationTimer!==null){clearInterval(rotationTimer);rotationTimer=null;}};
+      startRotation();
+      document.addEventListener("visibilitychange",()=>{if(document.hidden)stopRotation();else if(!motionPreference.matches)startRotation();});
+      motionPreference.addEventListener("change",event=>{if(event.matches)stopRotation();else if(!document.hidden)startRotation();});
+    }
+  }
+  // Entrada sutil das seções; conteúdo continua visível sem JavaScript.
+  if("IntersectionObserver" in window&&!motionPreference.matches){
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(entry.isIntersecting){entry.target.classList.add("is-in-view");observer.unobserve(entry.target);}
+    }),{threshold:.12,rootMargin:"0px 0px -35px 0px"});
+    document.querySelectorAll(".section-heading,.portfolio-card,.album-card,.service-card").forEach(node=>{
+      node.classList.add("reveal-ready");observer.observe(node);
+    });
+  }
   const albumsGrid=$("albums-grid"),albumDialog=$("album-dialog"),photoDialog=$("photo-dialog");
   $("album-close").addEventListener("click",()=>albumDialog.close());
   $("photo-close").addEventListener("click",()=>photoDialog.close());
