@@ -55,6 +55,26 @@ window.SITE_CONFIG = {
   ],
   "albums": [
     {
+      "id": "album-1795399697741",
+      "title": "Casamento",
+      "subtitle": "Eternizando momentos",
+      "imageUrl": "./database/upload-1795399819706-l16q82h.jpg",
+      "photos": [
+        {
+          "imageUrl": "./database/upload-1795399819706-l16q82h.jpg",
+          "alt": "IMG 2726"
+        },
+        {
+          "imageUrl": "./database/upload-1795399819735-5zqm0k4.jpg",
+          "alt": "IMG 2728"
+        },
+        {
+          "imageUrl": "./database/upload-1795399819787-paw33l4.jpg",
+          "alt": "IMG 2727"
+        }
+      ]
+    },
+    {
       "id": "casal",
       "title": "Ensaio de Casal",
       "subtitle": "Conexão, movimento e cumplicidade",
@@ -105,10 +125,6 @@ window.SITE_CONFIG = {
           "alt": "Ensaios"
         },
         {
-          "imageUrl": "./database/ensaios-04.jpg",
-          "alt": "Ensaios"
-        },
-        {
           "imageUrl": "./database/ensaios-06.jpg",
           "alt": "Ensaios"
         }
@@ -143,6 +159,10 @@ window.SITE_CONFIG = {
         {
           "imageUrl": "./database/eventos-06.jpg",
           "alt": "Eventos"
+        },
+        {
+          "imageUrl": "./database/ensaios-04.jpg",
+          "alt": "Ensaios"
         }
       ]
     },
