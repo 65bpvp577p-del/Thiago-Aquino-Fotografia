@@ -1,6 +1,12 @@
 name: Preparar integracao Supabase (sem publicar)
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'supabase-public-loader.js'
+      - 'supabase-public-config.js'
+      - 'index.html'
+      - '.github/workflows/preparar-supabase.yml'
 jobs:
   preparar:
     runs-on: ubuntu-latest
