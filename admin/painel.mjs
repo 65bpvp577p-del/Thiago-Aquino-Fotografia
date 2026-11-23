@@ -112,8 +112,10 @@ function drawAlbums() {
   if (!albums.length) $('albumList').append(element('p', 'Nenhum álbum cadastrado.'));
   for (const a of albums) {
     const card = element('article', undefined, 'album');
-    const cover = a.cover_url || a.photos.find(p => p.published)?.image_url || a.photos[0]?.image_url;
+    const matchingCover = a.photos.find(p => p.image_url === a.cover_url);
+    const cover = matchingCover?.image_url || a.photos.find(p => p.published)?.image_url || a.photos[0]?.image_url;
     if (cover) card.append(previewImage(cover, 'Capa de ' + a.title));
+    if (a.cover_url && !matchingCover) card.append(element('p', 'A capa cadastrada não pertence às fotos deste álbum. Escolha uma capa em “Ver fotos”.', 'muted'));
     card.append(element('h3', a.title), element('p', (a.subtitle || '') + ' • ' + a.photos.length + ' fotos • ' + (a.published ? 'Publicado' : 'Oculto')));
     const actions = element('div', undefined, 'row');
     actions.append(
@@ -144,7 +146,7 @@ function drawPhotos() {
     const card = element('article', undefined, 'photo');
     card.append(previewImage(p.image_url, p.alt || 'Fotografia'));
     const album = albums.find(a => a.id === p.album_id);
-    const isCover = album?.cover_url === p.image_url;
+    const isCover = (album?.cover_url ? album.photos.some(photo => photo.image_url === album.cover_url) && album.cover_url === p.image_url : album?.photos.find(photo => photo.published)?.image_url === p.image_url);
     const coverButton = button(isCover ? '✓ Capa atual' : 'Definir como capa do álbum', () => run(async () => {
       await manager.updateAlbum(p.album_id, { cover_url: p.image_url });
       await refresh();
