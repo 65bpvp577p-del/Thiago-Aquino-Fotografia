@@ -24,3 +24,19 @@ for (const id of ["hero-media", "filters", "masonry", "lightbox", "large", "clos
 assert(fs.existsSync("painel.html"), "Falta painel.html");
 assert(fs.existsSync("painel.css"), "Falta painel.css");
 console.log("Verificações estáticas concluídas.");
+
+const { execFileSync } = require("node:child_process");
+const os = require("node:os");
+const path = require("node:path");
+const exportPath = path.join(os.tmpdir(), "thiago-aquino-migracao-audit.json");
+try {
+  execFileSync(process.execPath, ["scripts/exportar-migracao.cjs", exportPath], { stdio: "inherit" });
+  const exportData = JSON.parse(fs.readFileSync(exportPath, "utf8"));
+  assert.equal(exportData.summary.albums, cfg.albums.length);
+  assert.equal(exportData.summary.photoReferences, cfg.albums.reduce((n, a) => n + a.photos.length, 0));
+  if (exportData.summary.missingLocalAssets.length) {
+    console.warn("AVISO: arquivos de imagem ausentes: " + exportData.summary.missingLocalAssets.join(", "));
+  }
+} finally {
+  if (fs.existsSync(exportPath)) fs.unlinkSync(exportPath);
+}
