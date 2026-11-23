@@ -167,6 +167,18 @@ window.SITE_CONFIG = {
         {
           "imageUrl": "./database/familias-05.jpg",
           "alt": "Famílias"
+        },
+        {
+          "imageUrl": "./database/upload-1795400417391-g77ts8q.jpg",
+          "alt": "IMG 7345"
+        },
+        {
+          "imageUrl": "./database/upload-1795400417445-vvfqqnm.jpg",
+          "alt": "IMG 7343"
+        },
+        {
+          "imageUrl": "./database/upload-1795400417493-tm3i14h.jpg",
+          "alt": "IMG 7316"
         }
       ]
     },
@@ -183,6 +195,10 @@ window.SITE_CONFIG = {
         {
           "imageUrl": "./database/familias-03.jpg",
           "alt": "Famílias"
+        },
+        {
+          "imageUrl": "./database/upload-1795400052774-y9q7nmh.jpg",
+          "alt": "IMG 7969"
         },
         {
           "imageUrl": "./database/familias-04.jpg",
