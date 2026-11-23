@@ -353,22 +353,38 @@ html{scroll-padding-top:115px}
 (async()=>{'use strict';if(window.loadPortfolioFromSupabase)await window.loadPortfolioFromSupabase();const cfg=window.SITE_CONFIG;const $=id=>document.getElementById(id);const albums=cfg.albums||[];const all=albums.flatMap(a=>(a.photos||[]).map(p=>({url:p.imageUrl,alt:p.alt||a.title,group:a.id,title:a.title})));const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;const heroGroups=(albums||[]).filter(a=>(a.photos||[]).length).map(a=>({id:a.id,urls:[...new Set(a.photos.map(p=>p.imageUrl).filter(Boolean))],cursor:0}));const heroEl=$('hero-media');const slots=[];const preloadHero=url=>new Promise(resolve=>{const im=new Image();im.onload=()=>resolve(true);im.onerror=()=>resolve(false);im.src=url});function pickHero(group){const url=group.urls[group.cursor%group.urls.length];group.cursor++;return url}const activeGroups=heroGroups.slice(0,3);activeGroups.forEach((group,i)=>{const img=new Image();img.alt='Fotografia em destaque: '+group.id;img.decoding='async';img.loading=i===0?'eager':'lazy';if(i===0)img.fetchPriority='high';img.src=pickHero(group);img.onload=()=>img.classList.add('on');heroEl.append(img);slots.push(img)});let heroBusy=false,heroTurn=0;async function rotateHero(){if(heroBusy||document.hidden||!slots.length)return;heroBusy=true;const slotIndex=heroTurn%slots.length;heroTurn++;const group=activeGroups[slotIndex];const img=slots[slotIndex];const next=pickHero(group);const ok=await preloadHero(next);if(ok){img.classList.remove('on');await new Promise(resolve=>setTimeout(resolve,900));img.onload=()=>requestAnimationFrame(()=>img.classList.add('on'));img.src=next;if(img.complete&&img.naturalWidth)requestAnimationFrame(()=>img.classList.add('on'))}heroBusy=false}if(slots.length&&!reduced&&activeGroups.some(g=>g.urls.length>1))setInterval(rotateHero,5200);const filters=$('filters');const masonry=$('masonry');let current=all,index=0,scale=1;[['Todos','all'],...albums.map(a=>[a.title,a.id])].forEach(([label,id])=>{const b=document.createElement('button');b.textContent=label;b.dataset.id=id;b.onclick=()=>render(id);filters.append(b)});function editorialOrder(items){const pools=new Map();items.forEach(p=>{if(!pools.has(p.group))pools.set(p.group,[]);pools.get(p.group).push(p)});if(pools.size<2)return items;const order=[];let cursor=0;const keys=[...pools.keys()];while(order.length<items.length){const key=keys[cursor%keys.length];const pool=pools.get(key);if(pool.length)order.push(pool.shift());cursor++}return order}
 function render(group){filters.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.id===group));current=group==='all'?editorialOrder(all):all.filter(p=>p.group===group);masonry.replaceChildren();const pattern=[2,3,2,2,3,2];let cursor=0,rowIndex=0;while(cursor<current.length){const count=pattern[rowIndex%pattern.length];const row=document.createElement('div');row.className='editorial-row editorial-row-'+(rowIndex%3);const selected=current.slice(cursor,cursor+count);selected.forEach((p,j)=>{const i=cursor+j;const btn=document.createElement('button');btn.type='button';btn.className='shot reveal';btn.setAttribute('aria-label','Ampliar '+p.alt);btn.style.setProperty('--photo-ratio',j===0&&rowIndex%3===0?'1.35':'1');const img=document.createElement('img');img.alt=p.alt;img.loading=i<2?'eager':'lazy';img.decoding='async';if(i<2)img.fetchPriority='high';img.src=p.url;img.addEventListener('load',()=>{btn.style.setProperty('--photo-ratio',String(img.naturalWidth/img.naturalHeight))});img.addEventListener('error',()=>{btn.classList.add('photo-unavailable');btn.setAttribute('aria-label','Fotografia indisponível')});const tag=document.createElement('span');tag.className='tag';tag.textContent=p.title;btn.append(img,tag);btn.onclick=()=>open(i);row.append(btn)});masonry.append(row);cursor+=selected.length;rowIndex++}observe()}
 function observe(){const items=masonry.querySelectorAll('.reveal');if(!('IntersectionObserver'in window)||reduced){items.forEach(e=>e.classList.add('visible'));return}const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}}),{rootMargin:'0px 0px 90px 0px'});items.forEach(e=>obs.observe(e))}const lightbox=$('lightbox');let developTimer=0,photoToken=0,previousFocus=null;function develop(){clearTimeout(developTimer);lightbox.classList.remove('developed');const token=++photoToken;const img=$('large');const reveal=()=>{if(token!==photoToken)return;developTimer=setTimeout(()=>{if(token===photoToken&&lightbox.classList.contains('open'))lightbox.classList.add('developed')},reduced?0:350)};if(img.complete&&img.naturalWidth)reveal();else img.addEventListener('load',reveal,{once:true})}function show(){const p=current[index];const img=$('large');img.src=p.url;img.alt=p.alt;$('count').textContent=(index+1)+' / '+current.length;scale=1;img.style.transform='scale(1)';$('zoom').textContent='Ampliar +';develop()}function open(i){previousFocus=document.activeElement;index=i;lightbox.classList.add('open','darkroom');document.body.style.overflow='hidden';$('close').focus();show()}function close(){clearTimeout(developTimer);photoToken++;lightbox.classList.remove('open','darkroom','developed');document.body.style.overflow='';if(previousFocus&&previousFocus.isConnected)previousFocus.focus()}function step(n){index=(index+n+current.length)%current.length;lightbox.classList.remove('developed');show()}$('close').onclick=close;$('prev').onclick=()=>step(-1);$('next').onclick=()=>step(1);$('zoom').onclick=()=>{scale=scale===1?1.6:1;$('large').style.transform='scale('+scale+')';$('zoom').textContent=scale===1?'Ampliar +':'Ajustar −'};lightbox.onclick=e=>{if(e.target===lightbox)close()};document.addEventListener('keydown',e=>{if(!lightbox.classList.contains('open'))return;if(e.key==='Escape')close();if(e.key==='ArrowLeft')step(-1);if(e.key==='ArrowRight')step(1);if(e.key==='Tab'){const controls=[$('close'),$('prev'),$('next'),$('zoom')];const pos=controls.indexOf(document.activeElement);if(e.shiftKey&&pos<=0){e.preventDefault();controls[controls.length-1].focus()}else if(!e.shiftKey&&pos===controls.length-1){e.preventDefault();controls[0].focus()}}});let startX=0;$('large').addEventListener('touchstart',e=>{startX=e.touches[0].clientX},{passive:true});$('large').addEventListener('touchend',e=>{if(scale>1)return;const dx=e.changedTouches[0].clientX-startX;if(Math.abs(dx)>55)step(dx<0?1:-1)},{passive:true});const contact=$('contact');if(cfg.contact.whatsapp){const a=document.createElement('a');a.href='https://wa.me/'+cfg.contact.whatsapp+'?text='+encodeURIComponent('Olá, Thiago! Conheci seu portfólio e gostaria de conversar sobre um orçamento fotográfico.');a.textContent='Conversar pelo WhatsApp ↗';a.target='_blank';a.rel='noopener noreferrer';contact.append(a)}if(cfg.contact.instagram){const a=document.createElement('a');a.href=cfg.contact.instagram;a.textContent='Instagram ↗';a.target='_blank';a.rel='noopener noreferrer';contact.append(a)}if(cfg.contact.email){const a=document.createElement('a');a.href='mailto:'+cfg.contact.email;a.textContent='E-mail ↗';contact.append(a)}render('all')})();
-</script><script>
-/* Acesso discreto: dois cliques na marca (ou dois toques no celular).
-   O login e as políticas do Supabase continuam sendo a proteção real. */
+</script><style>
+/* Transição editorial para a área administrativa */
+.admin-transition{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:#0b0b0d;color:#f7f7f7;opacity:0;pointer-events:none;transition:opacity .5s ease}
+.admin-transition.active{opacity:1;pointer-events:all}
+.admin-transition-content{text-align:center;transform:translateY(16px) scale(.96);opacity:0;transition:transform .65s ease,opacity .65s ease}
+.admin-transition.active .admin-transition-content{transform:translateY(0) scale(1);opacity:1}
+.admin-transition-mark{font-family:Georgia,serif;font-size:clamp(28px,5vw,56px);letter-spacing:.12em}
+.admin-transition-sub{font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:#d67c7b;margin-top:12px}
+.admin-transition-line{height:1px;width:0;background:#e53935;margin:26px auto 0;transition:width .85s ease}
+.admin-transition.active .admin-transition-line{width:min(240px,55vw)}
+@media(prefers-reduced-motion:reduce){.admin-transition,.admin-transition-content,.admin-transition-line{transition:none}}
+</style>
+<script>
+/* A marca abre o painel com transição; a autenticação continua obrigatória. */
 (() => {
   const logo = document.getElementById('brand-admin-shortcut');
   if (!logo) return;
-  const openAdmin = () => { window.location.assign('./admin/'); };
-  logo.addEventListener('dblclick', event => { event.preventDefault(); openAdmin(); });
-  let lastTouch = 0;
-  logo.addEventListener('touchend', event => {
-    const now = Date.now();
-    if (now - lastTouch < 450) {
-      event.preventDefault();
-      lastTouch = 0;
-      openAdmin();
-    } else lastTouch = now;
-  }, { passive: false });
+  logo.setAttribute('aria-label', 'Thiago Aquino Fotografia — abrir área administrativa');
+  let navigating = false;
+  logo.addEventListener('click', event => {
+    event.preventDefault();
+    if (navigating) return;
+    navigating = true;
+    const overlay = document.createElement('div');
+    overlay.className = 'admin-transition';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-label', 'Abrindo área administrativa');
+    overlay.innerHTML = '<div class="admin-transition-content"><div class="admin-transition-mark">THIAGO AQUINO</div><div class="admin-transition-sub">Acesso ao estúdio</div><div class="admin-transition-line"></div></div>';
+    document.body.append(overlay);
+    requestAnimationFrame(() => requestAnimationFrame(() => overlay.classList.add('active')));
+    const delay = matchMedia('(prefers-reduced-motion: reduce)').matches ? 80 : 1050;
+    setTimeout(() => window.location.assign('./admin/'), delay);
+  });
 })();
 </script></body></html>
