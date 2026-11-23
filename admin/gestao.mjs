@@ -22,7 +22,63 @@ async function refresh(){
   draw();
   if(editingFinance)drawFinance(editingFinance);
 }
+
+let calendarDate=new Date(),selectedDate=null;
+const isoDay=d=>[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const calendarJobs=day=>jobs.filter(j=>j.event_date===day).sort((a,b)=>(a.start_time||'').localeCompare(b.start_time||''));
+function calendarNode(tag,cls,txt){const e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e;}
+function calendarDetails(day){
+  selectedDate=day;
+  const wrap=$('calendarDetails');wrap.replaceChildren();
+  const title=calendarNode('h3','',new Date(day+'T12:00:00').toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'}));wrap.append(title);
+  const found=calendarJobs(day);
+  if(!found.length)wrap.append(calendarNode('p','', 'Nenhum trabalho marcado para este dia.'));
+  for(const j of found){
+    const item=calendarNode('div','calendar-list-item');
+    const desc=calendarNode('div','');
+    desc.append(calendarNode('strong','',(j.start_time?j.start_time.slice(0,5)+' · ':'')+j.client_name),calendarNode('p','',j.service_name+' · '+j.status+(j.location?' · '+j.location:'')));
+    const actions=calendarNode('div','row');
+    const edit=calendarNode('button','secondary','Editar');edit.onclick=()=>openEditor(j);
+    const finance=calendarNode('button','secondary','Financeiro');finance.onclick=()=>{editingFinance=j.id;drawFinance(j.id);$('financePanel').scrollIntoView({behavior:'smooth'});};
+    actions.append(edit,finance);item.append(desc,actions);wrap.append(item);
+  }
+  const add=calendarNode('button','','+ Agendar neste dia');
+  add.onclick=()=>{activeTab='agenda';openEditor();$('eventDate').value=day;};
+  wrap.append(add);
+}
+function renderCalendar(){
+  const mode=$('calendarMode').value,root=$('calendarGrid');root.replaceChildren();
+  const cursor=new Date(calendarDate.getFullYear(),calendarDate.getMonth(),calendarDate.getDate());
+  const today=isoDay(new Date());
+  let start,count;
+  if(mode==='month'){const first=new Date(cursor.getFullYear(),cursor.getMonth(),1);start=addDays(first,-((first.getDay()+6)%7));const last=new Date(cursor.getFullYear(),cursor.getMonth()+1,0);count=Math.ceil(((last-start)/86400000+1)/7)*7;}
+  else if(mode==='week'){start=addDays(cursor,-((cursor.getDay()+6)%7));count=7;}
+  else {start=cursor;count=1;}
+  root.style.gridTemplateColumns=mode==='day'?'1fr':'repeat(7,minmax(0,1fr))';
+  $('calendarTitle').textContent=mode==='month'?cursor.toLocaleDateString('pt-BR',{month:'long',year:'numeric'}):mode==='week'?'Semana de '+start.toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'}):cursor.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if(mode!=='day')for(const label of ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'])root.append(calendarNode('div','calendar-weekday',label));
+  for(let i=0;i<count;i++){
+    const day=addDays(start,i),key=isoDay(day),items=calendarJobs(key);
+    const cell=calendarNode('button','calendar-day'+(key===today?' today':'')+(selectedDate===key?' selected':'')+(mode==='month'&&day.getMonth()!==cursor.getMonth()?' other-month':''));
+    cell.type='button';cell.setAttribute('aria-label',day.toLocaleDateString('pt-BR')+' — '+items.length+' compromissos');
+    cell.append(calendarNode('span','calendar-day-number',String(day.getDate())));
+    for(const j of items.slice(0,mode==='month'?3:30)){
+      cell.append(calendarNode('span','calendar-event '+j.status,(j.start_time?j.start_time.slice(0,5)+' ':'')+j.client_name));
+    }
+    if(items.length>3&&mode==='month')cell.append(calendarNode('span','calendar-event','+'+(items.length-3)+' outros'));
+    cell.onclick=()=>{calendarDetails(key);renderCalendar();};
+    root.append(cell);
+  }
+  if(selectedDate)calendarDetails(selectedDate);
+}
+$('calendarMode').onchange=()=>{selectedDate=null;renderCalendar();};
+$('calendarPrev').onclick=()=>{const m=$('calendarMode').value;calendarDate=m==='month'?new Date(calendarDate.getFullYear(),calendarDate.getMonth()-1,1):addDays(calendarDate,m==='week'?-7:-1);selectedDate=null;renderCalendar();};
+$('calendarNext').onclick=()=>{const m=$('calendarMode').value;calendarDate=m==='month'?new Date(calendarDate.getFullYear(),calendarDate.getMonth()+1,1):addDays(calendarDate,m==='week'?7:1);selectedDate=null;renderCalendar();};
+$('calendarToday').onclick=()=>{calendarDate=new Date();selectedDate=isoDay(calendarDate);renderCalendar();};
+
 function draw(){
+  renderCalendar();
   const active=jobs.filter(j=>j.status!=='orcamento'&&j.status!=='cancelado');
   $('kConfirmed').textContent=active.filter(j=>j.status==='confirmado').length;
   $('kContracted').textContent=money(sum(active,j=>j.total_amount));
