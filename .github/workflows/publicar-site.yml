@@ -10,6 +10,8 @@ on:
       - 'supabase-public-loader.js'
       - 'supabase-public-config.js'
       - 'database/**'
+      - 'admin/**'
+      - 'auth/**'
       - '.github/workflows/publicar-site.yml'
   workflow_dispatch:
 permissions:
@@ -68,6 +70,9 @@ jobs:
           NODE
           node --check supabase-public-config.js
           node --check supabase-public-loader.js
+          node --check admin/painel.mjs
+          node --check admin/album-manager.mjs
+          node --check auth/admin-auth.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
