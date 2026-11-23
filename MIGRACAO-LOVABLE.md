@@ -46,3 +46,9 @@ Isso cria `migracao-export.json` com a configuração completa, os cinco álbuns
 O relatório de execução informa `missingLocalAssets`; se não estiver vazio, corrigir os caminhos ou restaurar os arquivos antes da importação.
 O script **não** faz upload, não autentica usuários, não altera o site publicado e não acessa Lovable.
 O JSON é um pacote de metadados: os arquivos binários de `database/` precisam ser transferidos separadamente.
+
+## Pacote inicial já salvo
+- `migracao-export.json` foi gerado a partir de `site.config.js` e versionado nesta branch de preparação.
+- Contém 5 álbuns, 29 referências de fotografias e 30 caminhos únicos de imagens.
+- O campo `exists: null` significa **não verificado**; não significa que o arquivo exista nem que esteja ausente.
+- Antes de importar, executar `node scripts/exportar-migracao.cjs` para recalcular a integridade dos arquivos locais.
