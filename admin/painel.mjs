@@ -139,10 +139,12 @@ function clearAlbum() {
   $('albumForm').reset(); $('albumId').value = ''; $('albumOrder').value = '0'; $('albumPublished').checked = true;
 }
 async function showDashboard() {
+  $('loadingSection').hidden = true;
   $('loginSection').hidden = true; $('dashboard').hidden = false; $('logout').hidden = false;
   await refresh(); message('Painel conectado com segurança.');
 }
 function showLogin() {
+  $('loadingSection').hidden = true;
   $('dashboard').hidden = true; $('logout').hidden = true; $('loginSection').hidden = false;
 }
 $('loginForm').addEventListener('submit', event => { event.preventDefault(); run(async () => {
@@ -195,7 +197,15 @@ auth.onAuthStateChange(event => {
   }
 });
 run(async () => {
-  const status = await auth.restoreSession();
-  if (status.authorized) await showDashboard();
-  else { showLogin(); if (status.reason === 'forbidden') message('Conta sem permissão de administrador.', true); }
+  try {
+    const status = await auth.restoreSession();
+    if (status.authorized) await showDashboard();
+    else {
+      showLogin();
+      if (status.reason === 'forbidden') message('Conta sem permissão de administrador.', true);
+    }
+  } catch (error) {
+    showLogin();
+    throw error;
+  }
 });
