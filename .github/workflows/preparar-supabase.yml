@@ -1,0 +1,33 @@
+name: Preparar integracao Supabase (sem publicar)
+on:
+  workflow_dispatch:
+jobs:
+  preparar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verificar variaveis publicas
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node -e 'if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(process.env.SUPABASE_URL || "") || !(process.env.SUPABASE_KEY || "").startsWith("sb_publishable_")) process.exit(1)'
+      - name: Gerar configuracao de navegador (somente chave publica)
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node -e 'const fs=require("fs"); fs.writeFileSync("supabase-public-config.js", "window.SUPABASE_PUBLIC_CONFIG = " + JSON.stringify({url:process.env.SUPABASE_URL,publishableKey:process.env.SUPABASE_KEY}) + ";\n")'
+      - name: Conferir sintaxe
+        run: |
+          node --check supabase-public-config.js
+          node --check supabase-public-loader.js
+      - name: Empacotar configuracao para revisao sem implantar
+        uses: actions/upload-artifact@v4
+        with:
+          name: supabase-public-config
+          path: supabase-public-config.js
+          retention-days: 1
