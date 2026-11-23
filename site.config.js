@@ -71,6 +71,14 @@ window.SITE_CONFIG = {
         {
           "imageUrl": "./database/upload-1795399819787-paw33l4.jpg",
           "alt": "IMG 2727"
+        },
+        {
+          "imageUrl": "./database/eventos-03.jpg",
+          "alt": "Eventos"
+        },
+        {
+          "imageUrl": "./database/eventos-05.jpg",
+          "alt": "Eventos"
         }
       ]
     },
@@ -145,15 +153,7 @@ window.SITE_CONFIG = {
           "alt": "Eventos"
         },
         {
-          "imageUrl": "./database/eventos-03.jpg",
-          "alt": "Eventos"
-        },
-        {
           "imageUrl": "./database/eventos-04.jpg",
-          "alt": "Eventos"
-        },
-        {
-          "imageUrl": "./database/eventos-05.jpg",
           "alt": "Eventos"
         },
         {
@@ -163,6 +163,10 @@ window.SITE_CONFIG = {
         {
           "imageUrl": "./database/ensaios-04.jpg",
           "alt": "Ensaios"
+        },
+        {
+          "imageUrl": "./database/familias-05.jpg",
+          "alt": "Famílias"
         }
       ]
     },
@@ -182,10 +186,6 @@ window.SITE_CONFIG = {
         },
         {
           "imageUrl": "./database/familias-04.jpg",
-          "alt": "Famílias"
-        },
-        {
-          "imageUrl": "./database/familias-05.jpg",
           "alt": "Famílias"
         },
         {
