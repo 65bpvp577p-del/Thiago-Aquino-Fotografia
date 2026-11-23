@@ -1,0 +1,76 @@
+name: Publicar site com Supabase no GitHub Pages
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'site.config.js'
+      - 'site.js'
+      - 'styles.css'
+      - 'supabase-public-loader.js'
+      - 'supabase-public-config.js'
+      - 'database/**'
+      - '.github/workflows/publicar-site.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar configuracao publica
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node - <<'NODE'
+          const url=process.env.SUPABASE_URL||'',key=process.env.SUPABASE_KEY||'';
+          if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)||!key.startsWith('sb_publishable_')) throw Error('Variaveis publicas ausentes ou invalidas');
+          NODE
+      - name: Validar acesso publico a albuns e fotos
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node - <<'NODE'
+          (async()=>{
+            for(const [table,min] of [['albums',5],['photos',29]]){
+              const url=new URL(process.env.SUPABASE_URL+'/rest/v1/'+table);
+              url.searchParams.set('select','id');
+              const response=await fetch(url,{headers:{apikey:process.env.SUPABASE_KEY},signal:AbortSignal.timeout(10000)});
+              if(!response.ok) throw Error(table+': HTTP '+response.status);
+              const data=await response.json();
+              if(!Array.isArray(data)||data.length<min) throw Error(table+': registros insuficientes');
+              console.log(table+': '+data.length+' registros');
+            }
+          })().catch(e=>{console.error(e.message);process.exit(1)});
+          NODE
+      - name: Gerar configuracao publica para o navegador
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          fs.writeFileSync('supabase-public-config.js','window.SUPABASE_PUBLIC_CONFIG = '+JSON.stringify({url:process.env.SUPABASE_URL,publishableKey:process.env.SUPABASE_KEY})+';\n');
+          NODE
+          node --check supabase-public-config.js
+          node --check supabase-public-loader.js
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - id: deployment
+        uses: actions/deploy-pages@v4
