@@ -41,7 +41,7 @@
       const validPhotos = photos.filter(p => published.has(p.album_id));
       const nextAlbums = albums.map(a => ({
         id: a.id, title: a.title, subtitle: a.subtitle || '',
-        imageUrl: resolveImage(a.cover_url),
+        imageUrl: resolveImage(validPhotos.find(p => p.album_id === a.id && p.image_url === a.cover_url)?.image_url || validPhotos.find(p => p.album_id === a.id)?.image_url || ''),
         photos: validPhotos.filter(p => p.album_id === a.id).map(p => ({
           imageUrl: resolveImage(p.image_url), alt: p.alt || '', caption: p.caption || ''
         })).filter(p => p.imageUrl)
