@@ -40,3 +40,9 @@
 
 ## Condição de parada
 Nenhuma chamada que execute trabalho de agente no Lovable, provisionamento ou importação será feita sem nova autorização explícita de créditos.
+## Exportação gratuita de dados
+Na raiz do repositório, execute `node scripts/exportar-migracao.cjs`.
+Isso cria `migracao-export.json` com a configuração completa, os cinco álbuns, a ordem das fotografias e um inventário das imagens.
+O relatório de execução informa `missingLocalAssets`; se não estiver vazio, corrigir os caminhos ou restaurar os arquivos antes da importação.
+O script **não** faz upload, não autentica usuários, não altera o site publicado e não acessa Lovable.
+O JSON é um pacote de metadados: os arquivos binários de `database/` precisam ser transferidos separadamente.
