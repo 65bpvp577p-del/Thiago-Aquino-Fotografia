@@ -52,3 +52,13 @@ O JSON é um pacote de metadados: os arquivos binários de `database/` precisam 
 - Contém 5 álbuns, 29 referências de fotografias e 30 caminhos únicos de imagens.
 - O campo `exists: null` significa **não verificado**; não significa que o arquivo exista nem que esteja ausente.
 - Antes de importar, executar `node scripts/exportar-migracao.cjs` para recalcular a integridade dos arquivos locais.
+
+## Conferência manual parcial de imagens no GitHub
+Em 23/11/2026, foi confirmada a existência no repositório dos seguintes arquivos:
+- `database/casal-01.jpg`
+- `database/upload-1795399819706-l16q82h.jpg`
+- `database/eventos-01.jpg`
+- `database/ensaios-01.jpg`
+- `database/familias-01.jpg`
+
+Esta verificação confirma **presença no GitHub**, não qualidade visual, integridade de decodificação nem acesso público. Os outros 25 caminhos únicos do pacote continuam sem conferência individual registrada.
