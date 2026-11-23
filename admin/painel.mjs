@@ -112,7 +112,7 @@ function drawAlbums() {
   if (!albums.length) $('albumList').append(element('p', 'Nenhum álbum cadastrado.'));
   for (const a of albums) {
     const card = element('article', undefined, 'album');
-    const cover = a.cover_url || a.photos[0]?.image_url;
+    const cover = a.cover_url || a.photos.find(p => p.published)?.image_url || a.photos[0]?.image_url;
     if (cover) card.append(previewImage(cover, 'Capa de ' + a.title));
     card.append(element('h3', a.title), element('p', (a.subtitle || '') + ' • ' + a.photos.length + ' fotos • ' + (a.published ? 'Publicado' : 'Oculto')));
     const actions = element('div', undefined, 'row');
@@ -143,6 +143,15 @@ function drawPhotos() {
   for (const p of chosen) {
     const card = element('article', undefined, 'photo');
     card.append(previewImage(p.image_url, p.alt || 'Fotografia'));
+    const album = albums.find(a => a.id === p.album_id);
+    const isCover = album?.cover_url === p.image_url;
+    const coverButton = button(isCover ? '✓ Capa atual' : 'Definir como capa do álbum', () => run(async () => {
+      await manager.updateAlbum(p.album_id, { cover_url: p.image_url });
+      await refresh();
+      message('Capa atualizada. A fotografia original foi preservada.');
+    }));
+    coverButton.disabled = Boolean(isCover);
+    card.append(coverButton);
     card.append(field('Descrição da fotografia', p.alt, value => run(async () => { await manager.editPhoto(p.id, { alt: value }); message('Descrição salva.'); })));
     card.append(field('Legenda', p.caption, value => run(async () => { await manager.editPhoto(p.id, { caption: value }); message('Legenda salva.'); })));
     card.append(field('Ordem', p.sort_order, value => run(async () => { await manager.editPhoto(p.id, { sort_order: value }); message('Ordem salva.'); await refresh(); }), 'number'));
