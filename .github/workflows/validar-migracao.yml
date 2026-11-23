@@ -1,0 +1,29 @@
+name: Validacao de migracao
+on:
+  push:
+    branches: [main, 'etapa-5/**']
+  pull_request:
+    branches: [main]
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validar sintaxe do JavaScript
+        run: |
+          node --check site.config.js
+          node --check site.js
+          node --check scripts/gerar-seed-banco.cjs
+      - name: Validar geracao de seed e contagem de imagens
+        run: |
+          node scripts/gerar-seed-banco.cjs > /tmp/site-seed.sql
+          test -s /tmp/site-seed.sql
+          grep -qi 'insert into' /tmp/site-seed.sql
+      - name: Validar arquivos basicos do site
+        run: |
+          test -s index.html
+          test -s styles.css
+          test -s database/migrations/001_site_schema.sql
