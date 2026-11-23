@@ -17,11 +17,31 @@ function photoSrc(value) {
 function previewImage(value, alt) {
   const img = document.createElement('img');
   img.loading = 'lazy';
+  img.decoding = 'async';
   img.alt = alt || 'Prévia da fotografia';
   const src = photoSrc(value);
-  if (src) img.src = src;
-  else img.hidden = true;
+  // Miniaturas Supabase: solicita 480px em vez de baixar o original.
+  // Se a transformação não estiver disponível no plano, usa a URL original.
+  let thumbnail = '';
+  if (src) {
+    try {
+      const url = new URL(src);
+      if (url.hostname.endsWith('.supabase.co') && url.pathname.includes('/storage/v1/object/public/')) {
+        url.pathname = url.pathname.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+        url.searchParams.set('width', '480');
+        url.searchParams.set('quality', '72');
+        url.searchParams.set('resize', 'contain');
+        thumbnail = url.href;
+      }
+    } catch { /* mantém URL original */ }
+    img.src = thumbnail || src;
+  } else img.hidden = true;
   img.addEventListener('error', () => {
+    if (thumbnail && img.src === thumbnail) {
+      thumbnail = '';
+      img.src = src;
+      return;
+    }
     img.hidden = true;
     if (!img.parentElement.querySelector('.image-fallback')) {
       img.parentElement.prepend(element('p', 'Prévia indisponível', 'image-fallback'));
