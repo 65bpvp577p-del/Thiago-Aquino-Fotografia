@@ -62,3 +62,6 @@ Em 23/11/2026, foi confirmada a existência no repositório dos seguintes arquiv
 - `database/familias-01.jpg`
 
 Esta verificação confirma **presença no GitHub**, não qualidade visual, integridade de decodificação nem acesso público. Os outros 25 caminhos únicos do pacote continuam sem conferência individual registrada.
+
+## Auditoria completa de presença dos arquivos (23/11/2026)
+Todos os **30 caminhos únicos** de imagem presentes no `migracao-export.json` foram consultados individualmente no repositório GitHub e retornaram arquivos existentes. O inventário JSON foi atualizado para `exists: true` e `missingLocalAssets: []`. Essa verificação atesta a existência dos arquivos no repositório, não sua decodificação, fidelidade visual ou transferência para armazenamento no Lovable.
