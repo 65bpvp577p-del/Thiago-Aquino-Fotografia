@@ -1,0 +1,30 @@
+name: Auditar pacote de migracao
+on:
+  pull_request:
+    paths:
+      - 'site.config.js'
+      - 'database/**'
+      - 'scripts/exportar-migracao.cjs'
+      - '.github/workflows/auditar-migracao.yml'
+  workflow_dispatch:
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Exportar catalogo e verificar imagens
+        run: |
+          node scripts/exportar-migracao.cjs migracao-export.json
+          node -e "const x=require('./migracao-export.json');if(x.summary.missingLocalAssets.length){console.error('Imagens ausentes:',x.summary.missingLocalAssets);process.exitCode=1}"
+      - name: Disponibilizar pacote JSON
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: thiago-aquino-migracao-json
+          path: migracao-export.json
+          retention-days: 7
