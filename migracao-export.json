@@ -241,159 +241,159 @@
     {
       "url": "./database/casal-01.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795399819706-l16q82h.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795399819735-5zqm0k4.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795399819787-paw33l4.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-03.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-05.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/casal-02.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/casal-03.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/casal-04.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/casal-05.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/casal-06.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/ensaios-01.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/ensaios-02.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/ensaios-03.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/ensaios-06.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-01.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-02.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-04.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/eventos-06.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/ensaios-04.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-05.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795400417391-g77ts8q.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795400417445-vvfqqnm.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795400417493-tm3i14h.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-01.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-02.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-03.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/upload-1795400052774-y9q7nmh.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-04.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     },
     {
       "url": "./database/familias-06.jpg",
       "local": true,
-      "exists": null
+      "exists": true
     }
   ],
   "summary": {
     "albums": 5,
     "photoReferences": 29,
     "uniqueAssets": 30,
-    "missingLocalAssets": null
+    "missingLocalAssets": []
   },
-  "verification": "Arquivos de imagem ainda nao verificados; nao interpretar null como ausencia ou presenca."
+  "verification": "30 caminhos únicos confirmados por consulta individual de arquivos no GitHub em 2026-11-23; não equivale a verificação de decodificação de imagem nem a teste visual."
 }
