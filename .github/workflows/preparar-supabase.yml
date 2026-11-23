@@ -21,6 +21,24 @@ jobs:
           SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: |
           node -e 'if (!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(process.env.SUPABASE_URL || "") || !(process.env.SUPABASE_KEY || "").startsWith("sb_publishable_")) process.exit(1)'
+      - name: Testar leitura real dos dados publicados
+        env:
+          SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          SUPABASE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          node - <<'NODE'
+          (async () => {
+            for (const [table, minimum] of [['albums', 5], ['photos', 29]]) {
+              const url = new URL(process.env.SUPABASE_URL + '/rest/v1/' + table);
+              url.searchParams.set('select', 'id');
+              const response = await fetch(url, { headers: { apikey: process.env.SUPABASE_KEY, Accept: 'application/json' }, signal: AbortSignal.timeout(10000) });
+              if (!response.ok) throw new Error(table + ': HTTP ' + response.status);
+              const rows = await response.json();
+              console.log(table + ': ' + rows.length + ' registros publicamente legíveis');
+              if (rows.length < minimum) throw new Error(table + ': menos registros que os esperados; não publicar');
+            }
+          })().catch(e => { console.error(e.message); process.exit(1); });
+          NODE
       - name: Gerar configuracao de navegador (somente chave publica)
         env:
           SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
