@@ -133,9 +133,13 @@ $('jobForm').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
   const data={client_name:v('client'),client_phone:v('phone'),client_email:v('clientEmail'),service_name:v('service'),event_date:v('eventDate')||null,start_time:v('startTime')||null,location:v('location'),status:v('status'),quote_status:v('quoteStatus'),description:v('description'),total_amount:Number(v('total')),valid_until:v('validUntil')||null,updated_at:new Date().toISOString()};
   if(!Number.isFinite(data.total_amount)||data.total_amount<0)throw Error('Valor inválido.');
   const id=v('jobId');
-  if(id)await query(client.from('photo_jobs').update(data).eq('id',id));
-  else await query(client.from('photo_jobs').insert(data));
-  $('jobEditor').hidden=true;await refresh();notice('Registro salvo com sucesso.');
+  const saved = id
+    ? await query(client.from('photo_jobs').update(data).eq('id',id).select('id').single())
+    : await query(client.from('photo_jobs').insert(data).select('id').single());
+  if (!saved?.id) throw Error('O banco não confirmou a gravação do agendamento.');
+  await refresh();
+  if (!jobs.some(job => job.id === saved.id)) throw Error('O registro foi enviado, mas não apareceu na consulta. Verifique as permissões do Supabase.');
+  $('jobEditor').hidden=true;notice('Agendamento gravado e conferido no banco de dados.');
 });});
 $('transactionForm').addEventListener('submit',e=>{e.preventDefault();run(async()=>{
   const amount=Number(v('amount'));if(!Number.isFinite(amount)||amount<=0)throw Error('Informe um valor maior que zero.');
