@@ -19,8 +19,9 @@ export function createAlbumManager(supabase, { bucket = "portfolio-public" } = {
   const normalizeImage = (value) => String(value || "").trim();
   const makePath = (albumId, file) => {
     const extension = (file.name.split(".").pop() || "").toLowerCase();
-    if (!["jpg", "jpeg", "png", "webp"].includes(extension)) throw new Error("Formato de imagem não permitido");
-    if (file.size > 20 * 1024 * 1024) throw new Error("Arquivo acima de 20 MB");
+    if (!["jpg", "jpeg", "png", "webp"].includes(extension)) throw new Error(`O arquivo "${file.name}" não é JPG, PNG ou WebP. Exporte HEIC/RAW como JPEG antes de enviar.`);
+    if (!file.type.startsWith("image/")) throw new Error(`"${file.name}" não foi reconhecido como imagem.`);
+    if (file.size > 20 * 1024 * 1024) throw new Error(`"${file.name}" excede 20 MB. Exporte uma versão otimizada para o site.`);
     return `albums/${encodeURIComponent(albumId)}/${crypto.randomUUID()}.${extension}`;
   };
   return {
@@ -56,7 +57,7 @@ export function createAlbumManager(supabase, { bucket = "portfolio-public" } = {
       for (let i = 0; i < list.length; i++) {
         const file = list[i];
         const path = makePath(albumId, file);
-        check(await supabase.storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type }));
+        check(await supabase.storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type || (path.endsWith(".png") ? "image/png" : path.endsWith(".webp") ? "image/webp" : "image/jpeg") }));
         try {
           const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(path);
           const image_url = normalizeImage(urlData?.publicUrl);
