@@ -203,6 +203,9 @@ $('albumForm').addEventListener('submit', event => { event.preventDefault(); run
     sort_order: Number($('albumOrder').value) || 0,
     cover_url: $('albumCover').value.trim() || null, published: $('albumPublished').checked
   };
+  if (data.cover_url && !photos.some(photo => photo.album_id === id && photo.image_url === data.cover_url)) {
+    throw new Error('A capa precisa ser uma fotografia deste álbum. Use “Ver fotos” e “Definir como capa do álbum”.');
+  }
   if (id) await manager.updateAlbum(id, data);
   else await manager.saveAlbum(data);
   clearAlbum(); await refresh(); message('Álbum salvo.');
@@ -215,6 +218,7 @@ $('upload').addEventListener('click', () => run(async () => {
   if (!files.length) throw new Error('Selecione as fotografias para enviar.');
   $('upload').disabled = true;
   try {
+    $('uploadStatus').textContent = `Enviando ${files.length} fotografia(s)…`;
     await manager.uploadPhotos(albumId, files, ({ completed, total }) => {
       $('uploadStatus').textContent = 'Enviadas ' + completed + ' de ' + total + ' fotografias.';
     });
